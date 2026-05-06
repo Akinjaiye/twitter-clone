@@ -37,12 +37,21 @@ app.get("/health", (req, res) => {
 });
 
 if (process.env.NODE_ENV === "production") {
-    const frontendDistPath = path.join(__dirname, "frontend", "dist");
+    const frontendDistPath = path.resolve(__dirname, "frontend", "dist");
     
+    // Log this to your Render dashboard to debug
+    console.log("Serving static files from:", frontendDistPath);
+
     app.use(express.static(frontendDistPath));
 
     app.get("*", (req, res) => {
-        res.sendFile(path.resolve(frontendDistPath, "index.html"));
+        const indexPath = path.join(frontendDistPath, "index.html");
+        res.sendFile(indexPath, (err) => {
+            if (err) {
+                console.error("Error sending index.html:", err);
+                res.status(500).send("Could not load frontend. Check logs.");
+            }
+        });
     });
 }
 
