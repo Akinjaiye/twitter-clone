@@ -37,9 +37,10 @@ app.get("/health", (req, res) => {
 });
 
 if (process.env.NODE_ENV === "production") {
-    const frontendDistPath = path.resolve(__dirname, "..", "frontend", "dist");
+    const rootPath = path.resolve(); 
+    const frontendDistPath = path.join(rootPath, "frontend", "dist");
 
-    console.log("Serving static files from:", frontendDistPath);
+    console.log("CRITICAL DEBUG: Looking for frontend at:", frontendDistPath);
 
     app.use(express.static(frontendDistPath));
 
