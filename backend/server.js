@@ -3,6 +3,7 @@ import express from "express";
 import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
 import { v2 as cloudinary } from "cloudinary";
+import { fileURLToPath } from 'url';
 
 import authRoutes from "./routes/auth.route.js";
 import userRoutes from "./routes/user.route.js";
@@ -21,7 +22,8 @@ cloudinary.config({
 
 const app = express();
 const PORT = process.env.PORT || 5000;
-const __dirname = path.resolve();
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 app.use(express.json({ limit: "5mb" })); 
 app.use(express.urlencoded({ extended: true })); 
@@ -36,22 +38,16 @@ app.get("/health", (req, res) => {
     res.status(200).send("OK");
 });
 
+
+
 if (process.env.NODE_ENV === "production") {
-    const rootPath = process.cwd(); 
-    const frontendDistPath = path.join(rootPath, "frontend", "dist");
-
-    // This log is your best friend—check it in the Render dashboard!
-    console.log("Serving static files from:", frontendDistPath);
-
+    // 2. Step out of 'backend' (..), then into 'frontend/dist'
+    const frontendDistPath = path.resolve(__dirname, "..", "frontend", "dist");
+    
     app.use(express.static(frontendDistPath));
 
     app.get("*", (req, res) => {
-        res.sendFile(path.join(frontendDistPath, "index.html"), (err) => {
-            if (err) {
-                console.error("ERROR: Failed to send index.html. Path tried:", path.join(frontendDistPath, "index.html"));
-                res.status(404).send("Frontend build not found. Verify 'frontend/dist' exists.");
-            }
-        });
+        res.sendFile(path.join(frontendDistPath, "index.html"));
     });
 }
 
