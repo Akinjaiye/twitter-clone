@@ -37,15 +37,21 @@ app.get("/health", (req, res) => {
 });
 
 if (process.env.NODE_ENV === "production") {
-    const rootPath = path.resolve(); 
+    const rootPath = process.cwd(); 
     const frontendDistPath = path.join(rootPath, "frontend", "dist");
 
-    console.log("CRITICAL DEBUG: Looking for frontend at:", frontendDistPath);
+    // This log is your best friend—check it in the Render dashboard!
+    console.log("Serving static files from:", frontendDistPath);
 
     app.use(express.static(frontendDistPath));
 
     app.get("*", (req, res) => {
-        res.sendFile(path.join(frontendDistPath, "index.html"));
+        res.sendFile(path.join(frontendDistPath, "index.html"), (err) => {
+            if (err) {
+                console.error("ERROR: Failed to send index.html. Path tried:", path.join(frontendDistPath, "index.html"));
+                res.status(404).send("Frontend build not found. Verify 'frontend/dist' exists.");
+            }
+        });
     });
 }
 
