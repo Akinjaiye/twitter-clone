@@ -46,8 +46,8 @@ if (process.env.NODE_ENV === "production") {
     app.get("*", (req, res) => {
         res.sendFile(path.resolve(frontendDistPath, "index.html"), (err) => {
             if (err) {
-                console.error("Path error detected:", err);
-                res.status(404).send("Front-end build not found. Check logs.");
+                console.error("Express cannot find index.html at:", path.join(frontendDistPath, "index.html"));
+                res.status(404).send("Frontend build not found. Check build logs.");
             }
         });
     });
