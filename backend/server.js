@@ -38,10 +38,7 @@ app.get("/health", (req, res) => {
     res.status(200).send("OK");
 });
 
-
 if (process.env.NODE_ENV === "production") {
-    // 1. We go UP one level from 'backend' to reach the root (..), 
-    // then into 'frontend/dist'
     const frontendDistPath = path.resolve(__dirname, "..", "frontend", "dist");
 
     app.use(express.static(frontendDistPath));
@@ -49,12 +46,13 @@ if (process.env.NODE_ENV === "production") {
     app.get("*", (req, res) => {
         res.sendFile(path.join(frontendDistPath, "index.html"), (err) => {
             if (err) {
-                // If it fails, this message will help us see exactly what path failed
-                res.status(404).send("Front-end build not found at: " + frontendDistPath);
+                console.error("Path error:", err);
+                res.status(404).send("Server looked for index.html here: " + frontendDistPath);
             }
         });
     });
 }
+
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
     connectMongoDB();
