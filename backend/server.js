@@ -39,16 +39,22 @@ app.get("/health", (req, res) => {
 });
 
 if (process.env.NODE_ENV === "production") {
+    // Navigate UP from 'backend' to root, then into 'frontend/dist'
     const frontendDistPath = path.resolve(__dirname, "..", "frontend", "dist");
 
     app.use(express.static(frontendDistPath));
 
     app.get("*", (req, res) => {
-        res.sendFile(path.join(frontendDistPath, "index.html"), (err) => {
+        const indexPath = path.join(frontendDistPath, "index.html");
+        
+        res.sendFile(indexPath, (err) => {
             if (err) {
-                // This will show up in your Render dashboard logs if it fails
-                console.error("Express cannot find index.html at:", path.join(frontendDistPath, "index.html"));
-                res.status(404).send("Frontend build not found. Check your Render build logs.");
+                // This sends a visible message to the browser so we can debug
+                res.status(404).send(`
+                    <h2>Frontend Not Found</h2>
+                    <p>Server looked at: ${indexPath}</p>
+                    <p>Check if 'frontend/dist' exists in your Render build logs.</p>
+                `);
             }
         });
     });
